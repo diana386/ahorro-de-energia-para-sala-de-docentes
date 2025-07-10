@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Registro de Ahorro de Energía</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f0f8ff;
+      padding: 20px;
+      max-width: 600px;
+      margin: auto;
+    }
+
+    h1 {
+      color: #2c3e50;
+    }
+
+    #fecha {
+      font-weight: bold;
+      margin-bottom: 20px;
+    }
+
+    .opciones {
+      margin-bottom: 20px;
+    }
+
+    label {
+      display: block;
+      margin: 10px 0;
+    }
+
+    button {
+      background-color: #2ecc71;
+      color: white;
+      padding: 10px 15px;
+      border: none;
+      cursor: pointer;
+      border-radius: 5px;
+    }
+
+    #resultado {
+      margin-top: 20px;
+      background-color: #e8f5e9;
+      padding: 15px;
+      border-left: 5px solid #27ae60;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>Registro de Ahorro de Energía</h1>
+  <div id="fecha"></div>
+
+  <form id="formulario">
+    <div class="opciones">
+      <label><input type="checkbox" name="accion" value="No usé la luz más de 30 minutos"> No usé la luz más de 30 minutos</label>
+      <label><input type="checkbox" name="accion" value="Apagué la luz antes de salir"> Apagué la luz antes de salir</label>
+      <label><input type="checkbox" name="accion" value="Usé luz natural en lugar de eléctrica"> Usé luz natural en lugar de eléctrica</label>
+      <label><input type="checkbox" name="accion" value="Recordé a otros apagar la luz"> Recordé a otros apagar la luz</label>
+    </div>
+
+    <button type="button" onclick="mostrarResultados()">Enviar</button>
+  </form>
+
+  <div id="resultado" style="display:none;"></div>
+
+  <script>
+    // Mostrar fecha actual
+    const fechaElemento = document.getElementById('fecha');
+    const hoy = new Date();
+    const fechaTexto = hoy.toLocaleDateString('es-PE', {
+      weekday: 'long',
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
+    });
+    fechaElemento.textContent = "Hoy es: " + fechaTexto;
+
+    // Verifica si es un nuevo día
+    const fechaGuardada = localStorage.getItem("fecha");
+    const accionesGuardadas = JSON.parse(localStorage.getItem("acciones")) || [];
+
+    if (fechaGuardada !== hoy.toDateString()) {
+      localStorage.clear(); // Borrar datos si es un nuevo día
+    } else {
+      // Marcar las acciones guardadas
+      accionesGuardadas.forEach(valor => {
+        const checkbox = document.querySelector(`input[value="${valor}"]`);
+        if (checkbox) checkbox.checked = true;
+      });
+      mostrarResultados();
+    }
+
+    function mostrarResultados() {
+      const checkboxes = document.querySelectorAll('input[name="accion"]:checked');
+      const resultado = document.getElementById('resultado');
+      resultado.innerHTML = "<strong>Acciones que realizaste hoy:</strong><ul>";
+
+      const valores = [];
+
+      if (checkboxes.length === 0) {
+        resultado.innerHTML = "<strong>No marcaste ninguna opción.</strong>";
+      } else {
+        checkboxes.forEach((checkbox) => {
+          resultado.innerHTML += "<li>" + checkbox.value + "</li>";
+          valores.push(checkbox.value);
+        });
+        resultado.innerHTML += "</ul>";
+      }
+
+      resultado.style.display = "block";
+
+      // Guardar en localStorage
+      localStorage.setItem("fecha", hoy.toDateString());
+      localStorage.setItem("acciones", JSON.stringify(valores));
+    }
+  </script>
+
+</body>
+</html>
